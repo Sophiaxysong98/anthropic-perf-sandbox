@@ -1,0 +1,15 @@
+services:
+  default:
+    image: gcr.io/gemini-frontier-evals/anthropic-perf-sandbox-easy:latest
+    working_dir: /home/agent/perf_takehome
+    volumes:
+      - agent-workspace:/home/agent/perf_takehome
+    environment:
+      - HOME=/home/agent
+    init: true
+    network_mode: none
+    cap_add:
+      - LINUX_IMMUTABLE
+
+volumes:
+  agent-workspace:

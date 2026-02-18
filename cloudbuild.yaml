@@ -1,37 +1,17 @@
 steps:
-  # PRE-BUILD SETUP: Copy required files into build contexts
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        cp _baseline_check/tests/submission_tests.py sandbox_standard/
-        cp _baseline_check/perf_takehome.py sandbox_standard/frozen_problem.py
-        cp _baseline_check/tests/submission_tests.py sandbox_easy/
-        cp sandbox_easy/perf_takehome_preoptimized.py sandbox_easy/frozen_problem.py
-
-  # Build sandbox_standard image with FULL GCR URI (must match compose.yaml exactly)
+  # Build sandbox standard image
   - name: 'gcr.io/cloud-builders/docker'
-    args:
-      - 'build'
-      - '-t'
-      - 'gcr.io/$PROJECT_ID/anthropic-perf-sandbox-standard:latest'
-      - '-f'
-      - 'sandbox_standard/Dockerfile'
-      - 'sandbox_standard'
+    args: ['build', '--build-arg', 'SANDBOX_MODE=standard',
+           '-t', 'gcr.io/$PROJECT_ID/anthropic-perf-sandbox-standard:latest',
+           '-f', 'sandbox/Dockerfile', 'sandbox/']
 
-  # Build sandbox_easy image with FULL GCR URI (must match compose.yaml exactly)
+  # Build sandbox easy image
   - name: 'gcr.io/cloud-builders/docker'
-    args:
-      - 'build'
-      - '-t'
-      - 'gcr.io/$PROJECT_ID/anthropic-perf-sandbox-easy:latest'
-      - '-f'
-      - 'sandbox_easy/Dockerfile'
-      - 'sandbox_easy'
+    args: ['build', '--build-arg', 'SANDBOX_MODE=easy',
+           '-t', 'gcr.io/$PROJECT_ID/anthropic-perf-sandbox-easy:latest',
+           '-f', 'sandbox/Dockerfile', 'sandbox/']
 
-  # Export sandbox images to tar files for embedding in main container
-  # CRITICAL: Use FULL GCR URI to match compose.yaml references exactly
+  # Save sandbox images as tarballs for embedding
   - name: 'gcr.io/cloud-builders/docker'
     entrypoint: 'bash'
     args:
@@ -39,29 +19,15 @@ steps:
       - |
         docker save gcr.io/$PROJECT_ID/anthropic-perf-sandbox-standard:latest > sandbox_standard.tar
         docker save gcr.io/$PROJECT_ID/anthropic-perf-sandbox-easy:latest > sandbox_easy.tar
-        ls -lh *.tar
 
-  # Build the anthropic-perf-takehome container (copies tar files)
+  # Build outer harness container
   - name: 'gcr.io/cloud-builders/docker'
-    args:
-      - 'build'
-      - '-t'
-      - 'gcr.io/$PROJECT_ID/anthropic-perf-takehome:latest'
-      - '-f'
-      - 'container/Dockerfile'
-      - '.'
-
-  # Push main container to GCR
-  - name: 'gcr.io/cloud-builders/docker'
-    args:
-      - 'push'
-      - 'gcr.io/$PROJECT_ID/anthropic-perf-takehome:latest'
+    args: ['build', '-f', 'container/Dockerfile',
+           '-t', 'gcr.io/$PROJECT_ID/anthropic-perf-takehome:latest', '.']
 
 images:
   - 'gcr.io/$PROJECT_ID/anthropic-perf-takehome:latest'
+  - 'gcr.io/$PROJECT_ID/anthropic-perf-sandbox-standard:latest'
+  - 'gcr.io/$PROJECT_ID/anthropic-perf-sandbox-easy:latest'
 
-options:
-  machineType: 'E2_HIGHCPU_8'
-  diskSizeGb: 100
-
-timeout: '2400s'  # 40 minutes
+timeout: '1800s'

@@ -1,0 +1,22 @@
+[project]
+name = "anthropic-perf-takehome"
+version = "0.1.0"
+description = "Anthropic Performance Takehome benchmark for Inspect AI"
+requires-python = ">=3.10"
+dependencies = [
+    "inspect-ai>=0.3.0",
+]
+
+[project.entry-points."inspect_ai"]
+anthropic_perf_takehome = "anthropic_perf_takehome.task_perf_takehome"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["anthropic_perf_takehome"]
+
+[tool.setuptools.package-dir]
+anthropic_perf_takehome = "."
+
