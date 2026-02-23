@@ -15,18 +15,16 @@ if [[ -f "$WORKSPACE/problem.py" ]]; then
     chattr +i "$WORKSPACE/watch_trace.py" 2>/dev/null || true
 fi
 
-if [[ ! -f "$WORKSPACE/perf_takehome.py" ]]; then
-    cp -r "$SOURCE/perf_takehome.py" "$WORKSPACE/" 2>/dev/null || true
-    cp -r "$SOURCE/problem.py" "$WORKSPACE/" 2>/dev/null || true
-    cp -r "$SOURCE/watch_trace.py" "$WORKSPACE/" 2>/dev/null || true
-    cp -r "$SOURCE/README.md" "$WORKSPACE/" 2>/dev/null || true
-    
-    chown agent:agent "$WORKSPACE"/*.py 2>/dev/null || true
-    chown agent:agent "$WORKSPACE"/*.md 2>/dev/null || true
-    
-    chattr +i "$WORKSPACE/problem.py" 2>/dev/null || true
-    chattr +i "$WORKSPACE/watch_trace.py" 2>/dev/null || true
-fi
+cp -r "$SOURCE/perf_takehome.py" "$WORKSPACE/" 2>/dev/null || true
+cp -r "$SOURCE/problem.py" "$WORKSPACE/" 2>/dev/null || true
+cp -r "$SOURCE/watch_trace.py" "$WORKSPACE/" 2>/dev/null || true
+cp -r "$SOURCE/README.md" "$WORKSPACE/" 2>/dev/null || true
+
+chown agent:agent "$WORKSPACE"/*.py 2>/dev/null || true
+chown agent:agent "$WORKSPACE"/*.md 2>/dev/null || true
+
+chattr +i "$WORKSPACE/problem.py" 2>/dev/null || true
+chattr +i "$WORKSPACE/watch_trace.py" 2>/dev/null || true
 
 echo "[SANDBOX] Verifying immutable protection..."
 VERIFY_FILE="$WORKSPACE/tests/submission_tests.py"
