@@ -27,6 +27,7 @@ from problem import reference_kernel
 from problem import reference_kernel2
 from problem import SCRATCH_SIZE
 from problem import Tree
+from problem import VLEN
 
 # Minimum plausible cycle count - even highly optimized kernels
 # need more than this.
